@@ -10,8 +10,16 @@ body.breadcrumb-fixed {
     padding-top: 56px;
 }
 
+.tab-container {
+    width: auto;
+    padding-right: 45px;
+}
+
 .container {
-    max-width: 960px;
+    width: 100%;
+    max-width: 1200px;
+    padding-right: 5%;
+    padding-left: 5%;
 }
 
 
@@ -55,16 +63,16 @@ body.breadcrumb-fixed {
 }
 
 .file-name i {
-    color: #555;
+    color: rgba(0, 188, 140, 0.8); /* #555 */
 }
 
 .file-download-button {
     display: inline-block;
-    cursor: pointer;
     margin-left: 100%;
-    padding: 6px 10px !important;
+    cursor: pointer;
+    top: 0px;
+    left: 5px;
     position: absolute !important;
-    top: 4px;
 }
 
 .file-download-button i {
@@ -112,10 +120,6 @@ body.breadcrumb-fixed {
         margin-left: 15px;
         margin-right: 15px;
         max-width: 75%;
-    }
-
-    .file-download-button {
-        display: none !important;
     }
 
 }
