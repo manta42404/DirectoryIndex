@@ -1,4 +1,5 @@
 <?php
+// ini_set("display_errors",0);error_reporting(0);
 
     // Include the DirectoryLister class
     require_once('resources/DirectoryLister.php');

@@ -5,23 +5,17 @@ return array(
     // Basic settings
     'hide_dot_files'     => true,
     'list_folders_first' => true,
-    'list_sort_order'    => 'natcasesort',
-    'theme_name'         => 'dark',
+    'list_sort_order'    => 'natcasesort', // asort, arsort, ksort, krsort, natcasesort, natsort, shuffle
+    'theme_name'         => 'dark', // dark OR light
+    'time_format'        => 'Y-m-d H:i', // Y-m-d H:i:s
 
-    // Hidden files
-    'hidden_files' => array(
-        '*/.ht*',
-        'resources',
-        'resources/*',
-        'analytics.inc'
+    // Hidden and forbidden files
+    'forbidden' => array(
+    //     '*.php',
+    //     '*/.ht*',
+    //     'index.php',
+    //     'resources',
+    //     'resources/*',
     ),
-
-    // File hashing threshold
-    'hash_size_limit' => 268435456, // 256 MB
-
-    // Custom sort order
-    'reverse_sort' => array(
-        // 'path/to/folder'
-    )
 
 );
