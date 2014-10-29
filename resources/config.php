@@ -13,9 +13,6 @@ return array(
     'forbidden' => array(
         '*.php',
         '*/.ht*',
-    // 
-        'index.php',
-        'resources*',
     ),
 
 );
