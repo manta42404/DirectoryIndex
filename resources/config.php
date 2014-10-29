@@ -11,8 +11,7 @@ return array(
  
     // Hidden and forbidden files
     'forbidden' => array(
-        '*.php',
-        '*/.ht*',
+        '*.php*',
     ),
 
 );
