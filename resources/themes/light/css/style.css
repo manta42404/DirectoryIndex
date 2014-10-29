@@ -10,16 +10,15 @@ body.breadcrumb-fixed {
     padding-top: 56px;
 }
 
-.tab-container {
-    width: auto;
-    padding-right: 45px;
-}
-
 .container {
     width: 100%;
     max-width: 1200px;
-    padding-right: 5%;
-    padding-left: 5%;
+    padding: 0 5%;
+}
+
+.tab-container {
+    width: auto;
+    padding-right: 60px;
 }
 
 
@@ -64,6 +63,24 @@ body.breadcrumb-fixed {
 
 .file-name i {
     color: rgba(0, 188, 140, 0.8); /* #555 */
+    width: 32px;
+    display: inline-block;
+    text-align: right;
+    margin-right: 10px;
+    margin-left: -10px;
+}
+
+a.tr {
+    line-height: 32px;
+}
+
+a.tr:hover {
+    font-size: 18px;
+}
+
+a.tr:hover i {
+    font-size: 32px;
+    vertical-align: -6px;
 }
 
 .file-download-button {
@@ -72,8 +89,9 @@ body.breadcrumb-fixed {
     cursor: pointer;
     top: 0px;
     left: 5px;
-
+    line-height: 31px;
     position: absolute !important;
+    font-size: 22px;
 }
 
 .file-download-button i {
@@ -123,4 +141,53 @@ body.breadcrumb-fixed {
         max-width: 75%;
     }
 
+    .container {
+        padding: 0 1%;
+    }
+
+    .tab-container {
+        padding-right: 45px;
+    }
+
+    .file-name {
+        padding: 0;
+    }
+
+    .file-size {
+        padding: 0;
+    }
+
+    .file-name i {
+        color: rgba(0, 188, 140, 0.8); /* #555 */
+        width: 32px;
+        display: inline-block;
+        text-align: right;
+        margin-right: 0px;
+        margin-left: -10px;
+    }
+
+    a.tr {
+        line-height: 28px;
+    }
+
+    a.tr:hover {
+        font-size: 15px;
+    }
+
+    a.tr:hover i {
+        font-size: 16px;
+    }
+
+    .file-download-button {
+        line-height: 28px;
+        font-size: 16px;
+        left: 0px;
+    }
+    
+    em.space {
+        font-size: 4px;
+    }
+
 }
+
+@media (max-width: 250px) { em.space { font-size: 1px; } }

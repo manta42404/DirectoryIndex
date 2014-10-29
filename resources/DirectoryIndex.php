@@ -1,22 +1,15 @@
 <?php
 
 /**
- * A simple PHP based directory lister that lists the contents
- * of a directory and all it's sub-directories and allows easy
- * navigation of the files within.
- *
- * This software distributed under the MIT License
- * http://www.opensource.org/licenses/mit-license.php
- *
- * More info available at http://www.directorylister.com
- *
- * @author Chris Kankiewicz (http://www.chriskankiewicz.com)
- * @copyright 2014 Chris Kankiewicz
+ * Simple directory index that lists directory and 
+ * sub-directories and allows you to navigate there 
+ * within, and download button for each files.
+ * 
+ * https://github.com/manta42404/DirectoryIndex
+ * 
+ * Based on http://www.directorylister.com version 2.4.3
  */
-class DirectoryLister {
-
-    // Define application version
-    const VERSION = '2.4.3';
+class DirectoryIndex {
 
     // Reserve some variables
     protected $_themeName     = null;
@@ -29,7 +22,7 @@ class DirectoryLister {
 
 
     /**
-     * DirectoryLister construct function. Runs on object creation.
+     * DirectoryIndex construct function. Runs on object creation.
      */
     public function __construct() {
 
@@ -129,7 +122,7 @@ class DirectoryLister {
                 }
 
                 // Combine the base path and dir path
-                $link = $this->_appURL . '?dir=' . urlencode($dirPath);
+                $link = $this->_appURL . '?dir=' . $dirPath;
 
                 $breadcrumbsArray[] = array(
                     'link' => $link,
@@ -228,64 +221,15 @@ class DirectoryLister {
         $bytes = filesize($filePath);
 
         // Array of file size suffixes
-        $sizes = array('B', 'KB', 'MB', 'GB', 'TB', 'PB');
+        $sizes = array('b', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb');
 
         // Calculate file size suffix factor
         $factor = floor((strlen($bytes) - 1) / 3);
 
         // Calculate the file size
-        $fileSize = sprintf('%.2f', $bytes / pow(1024, $factor)) . $sizes[$factor];
+        $fileSize = round($bytes / pow(1024, $factor), 0) .'<em class="space"> </em>'. $sizes[$factor];
 
         return $fileSize;
-
-    }
-
-
-    /**
-     * Returns array of file hash values
-     *
-     * @param  string $path Path to file
-     * @return array Array of file hashes
-     * @access public
-     */
-    public function getFileHash($filePath) {
-
-        // Placeholder array
-        $hashArray = array();
-
-        // Verify file path exists and is a directory
-        if (!file_exists($filePath)) {
-            return json_encode($hashArray);
-        }
-
-        // Prevent access to hidden files
-        if ($this->_isHidden($filePath)) {
-            return json_encode($hashArray);
-        }
-
-        // Prevent access to parent folders
-        if (strpos($filePath, '<') !== false || strpos($filePath, '>') !== false
-        || strpos($filePath, '..') !== false || strpos($filePath, '/') === 0) {
-            return json_encode($hashArray);
-        }
-
-        // Prevent hashing if file is too big
-        if (filesize($filePath) > $this->_config['hash_size_limit']) {
-
-            // Notify user that file is too large
-            $hashArray['md5']  = '[ File size exceeds threshold ]';
-            $hashArray['sha1'] = '[ File size exceeds threshold ]';
-
-        } else {
-
-            // Generate file hashes
-            $hashArray['md5']  = hash_file('md5', $filePath);
-            $hashArray['sha1'] = hash_file('sha1', $filePath);
-
-        }
-
-        // Return the data
-        return $hashArray;
 
     }
 
@@ -333,6 +277,44 @@ class DirectoryLister {
 
 
     /**
+     * Send headers to download file
+     *
+     * @param  string $filePath Path to file
+     * @return bool true on success
+     * @access public
+     */
+    public function downloadFile($filePath) {
+        if(!$this->_isForbidden($filePath) && is_file($filePath)) {
+
+            // Get file extension
+            $fileExt = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+
+            if (isset($this->_fileTypes[$fileExt][1])) {
+                $mimeType = $this->_fileTypes[$fileExt][1];
+            } else {
+                $mimeType = $this->_fileTypes['blank'][1];
+            }
+
+            header('Pragma: public');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            header('Cache-Control: public');
+            header('Content-Description: File Transfer');
+            header('Content-Type: '.$mimeType);
+            header('Content-Disposition: attachment; filename="'.basename($filePath).'"');
+            header('Content-Transfer-Encoding: binary');
+            header('Content-Length: '.filesize($filePath));
+            readfile($filePath);
+
+        } else {
+            $this->setSystemMessage('danger', '<b>ERROR:</b> Access denied');
+            return false;
+        }
+
+    }
+
+
+    /**
      * Validates and returns the directory path
      *
      * @param string @dir Directory path
@@ -365,8 +347,8 @@ class DirectoryLister {
             return '.';
         }
 
-        // Prevent access to hidden files
-        if ($this->_isHidden($dir)) {
+        // Prevent access to forbidden files
+        if ($this->_isForbidden($dir)) {
             // Set the error message
             $this->setSystemMessage('danger', '<b>ERROR:</b> Access denied');
 
@@ -432,10 +414,10 @@ class DirectoryLister {
                     // Get file extension
                     $fileExt = strtolower(pathinfo($realPath, PATHINFO_EXTENSION));
 
-                    if (isset($this->_fileTypes[$fileExt])) {
-                        $iconClass = $this->_fileTypes[$fileExt];
+                    if (isset($this->_fileTypes[$fileExt][0])) {
+                        $iconClass = $this->_fileTypes[$fileExt][0];
                     } else {
-                        $iconClass = $this->_fileTypes['blank'];
+                        $iconClass = $this->_fileTypes['blank'][0];
                     }
 
                     $sort = 2;
@@ -451,7 +433,7 @@ class DirectoryLister {
                         $directoryPath = implode('/', $pathArray);
 
                         if (!empty($directoryPath)) {
-                            $directoryPath = '?dir=' . urlencode($directoryPath);
+                            $directoryPath = '?dir=' . $directoryPath;
                         }
 
                         // Add file info to the array
@@ -459,22 +441,22 @@ class DirectoryLister {
                             'file_path'  => $this->_appURL . $directoryPath,
                             'url_path' => $this->_appURL . $directoryPath,
                             'file_size'  => '-',
-                            'mod_time'   => date('Y-m-d H:i:s', filemtime($realPath)),
+                            'mod_time'   => date($this->_config['time_format'], filemtime($realPath)),
                             'icon_class' => 'fa-level-up',
                             'sort'       => 0
                         );
                     }
 
-                } elseif (!$this->_isHidden($relativePath)) {
+                } elseif (!$this->_isForbidden($relativePath)) {
 
-                    // Add all non-hidden files to the array
+                    // Add all non-forbidden files to the array
                     if ($this->_directory != '.' || $file != 'index.php') {
 
                         // Build the file path
                         if (is_dir($relativePath)) {
-                            $urlPath = '?dir=' . urlencode($relativePath);
+                            $urlPath = '?dir=' . $relativePath;
                         } else {
-                            $urlPath = urlencode($relativePath);
+                            $urlPath = $relativePath;
                         }
 
                         // Add the info to the main array
@@ -482,7 +464,7 @@ class DirectoryLister {
                             'file_path'  => $relativePath,
                             'url_path'   => $urlPath,
                             'file_size'  => is_dir($realPath) ? '-' : $this->getFileSize($realPath),
-                            'mod_time'   => date('Y-m-d H:i:s', filemtime($realPath)),
+                            'mod_time'   => date($this->_config['time_format'], filemtime($realPath)),
                             'icon_class' => $iconClass,
                             'sort'       => $sort
                         );
@@ -494,8 +476,7 @@ class DirectoryLister {
         }
 
         // Sort the array
-        $reverseSort = in_array($this->_directory, $this->_config['reverse_sort']);
-        $sortedArray = $this->_arraySort($directoryArray, $this->_config['list_sort_order'], $reverseSort);
+        $sortedArray = $this->_arraySort($directoryArray, $this->_config['list_sort_order']);
 
         // Return the array
         return $sortedArray;
@@ -512,7 +493,7 @@ class DirectoryLister {
      * @return array
      * @access protected
      */
-    protected function _arraySort($array, $sortMethod, $reverse = false) {
+    protected function _arraySort($array, $sortMethod) {
         // Create empty arrays
         $sortedArray = array();
         $finalArray  = array();
@@ -565,11 +546,6 @@ class DirectoryLister {
                 }
             }
 
-            if ($reverse) {
-                $sortedArray[1] = array_reverse($sortedArray[1]);
-                $sortedArray[2] = array_reverse($sortedArray[2]);
-            }
-
         } else {
 
             foreach ($keys as $key) {
@@ -582,10 +558,6 @@ class DirectoryLister {
                 if ($array[$key]['sort'] > 0) {
                     $sortedArray[1][$key] = $array[$key];
                 }
-            }
-
-            if ($reverse) {
-                $sortedArray[1] = array_reverse($sortedArray[1]);
             }
 
         }
@@ -605,25 +577,29 @@ class DirectoryLister {
 
 
     /**
-     * Determines if a file is specified as hidden
+     * Determines if a file is specified as forbidden
      *
-     * @param string $filePath Path to file to be checked if hidden
-     * @return boolean Returns true if file is in hidden array, false if not
+     * @param string $filePath Path to file to be checked if forbidden
+     * @return boolean Returns true if file is in forbidden array, false if not
      * @access protected
      */
-    protected function _isHidden($filePath) {
+    protected function _isForbidden($filePath) {
 
-        // Add dot files to hidden files array
+        // Add system files to forbidden files array
+        $this->_config['forbidden'][] = 'index.php';
+        $this->_config['forbidden'][] = 'resources*';
+
+        // Add dot files to forbidden files array
         if ($this->_config['hide_dot_files']) {
 
-            $this->_config['hidden_files'][] = '.*';
+            $this->_config['forbidden'][] = '.*';
 
         }
 
-        // Compare path array to all hidden file paths
-        foreach ($this->_config['hidden_files'] as $hiddenPath) {
+        // Compare path array to all forbidden file paths
+        foreach ($this->_config['forbidden'] as $forbiddenPath) {
 
-            if (fnmatch($hiddenPath, $filePath)) {
+            if (fnmatch($forbiddenPath, $filePath)) {
 
                 return true;
 

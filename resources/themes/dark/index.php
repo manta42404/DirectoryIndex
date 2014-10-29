@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Directory listing of <?php echo $lister->getListedPath(); ?></title>
+        <title>Directory listing of <?php echo $index->getListedPath(); ?></title>
         <link rel="shortcut icon" href="<?php echo THEMEPATH; ?>/img/folder.png">
         <!-- STYLES -->
         <link rel="stylesheet" type="text/css" href="<?php echo THEMEPATH; ?>/css/bootstrap.min.css">
@@ -21,7 +21,7 @@
         <div id="page-navbar" class="navbar navbar-inverse navbar-fixed-top">
             <div class="container">
 
-                <?php $breadcrumbs = $lister->listBreadcrumbs(); ?>
+                <?php $breadcrumbs = $index->listBreadcrumbs(); ?>
 
                 <p class="navbar-text">
                     <?php foreach($breadcrumbs as $breadcrumb): ?>
@@ -45,8 +45,8 @@
 
         <div id="page-content" class="container">
 
-            <?php if($lister->getSystemMessages()): ?>
-                <?php foreach ($lister->getSystemMessages() as $message): ?>
+            <?php if($index->getSystemMessages()): ?>
+                <?php foreach ($index->getSystemMessages() as $message): ?>
                     <div class="alert alert-<?php echo $message['type']; ?>">
                         <?php echo $message['text']; ?>
                         <a class="close" data-dismiss="alert" href="#">&times;</a>
@@ -67,7 +67,7 @@
 
                     <?php foreach($dirArray as $name => $fileInfo): ?>
                         <li data-name="<?php echo $name; ?>" data-href="<?php echo $fileInfo['url_path']; ?>">
-                            <a href="<?php echo $fileInfo['url_path']; ?>" class="clearfix" data-name="<?php echo $name; ?>">
+                            <a href="<?php echo $fileInfo['url_path']; ?>" class="clearfix tr" data-name="<?php echo $name; ?>">
 
                                 <div class="row">
                                     <span class="file-name col-md-7 col-sm-6 col-xs-9 text-left">

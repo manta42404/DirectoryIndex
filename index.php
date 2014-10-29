@@ -1,37 +1,35 @@
 <?php
+// ini_set("display_errors",0);error_reporting(0);
 
-    // Include the DirectoryLister class
-    require_once('resources/DirectoryLister.php');
+    // Include the DirectoryIndex class
+    require_once('resources/DirectoryIndex.php');
 
-    // Initialize the DirectoryLister object
-    $lister = new DirectoryLister();
+    // Initialize the DirectoryIndex object
+    $index = new DirectoryIndex();
 
     // Return file hash
-    if (isset($_GET['hash'])) {
+    if (isset($_GET['f'])) {
 
-        // Get file hash array and JSON encode it
-        $hashes = $lister->getFileHash($_GET['hash']);
-        $data   = json_encode($hashes);
+        $filePath = base64_decode($_GET['f']);
 
-        // Return the data
-        die($data);
+        $index->downloadFile($filePath);
 
     }
 
     // Initialize the directory array
     if (isset($_GET['dir'])) {
-        $dirArray = $lister->listDirectory($_GET['dir']);
+        $dirArray = $index->listDirectory($_GET['dir']);
     } else {
-        $dirArray = $lister->listDirectory('.');
+        $dirArray = $index->listDirectory('.');
     }
 
     // Define theme path
     if (!defined('THEMEPATH')) {
-        define('THEMEPATH', $lister->getThemePath());
+        define('THEMEPATH', $index->getThemePath());
     }
 
     // Set path to theme index
-    $themeIndex = $lister->getThemePath(true) . '/index.php';
+    $themeIndex = $index->getThemePath(true) . '/index.php';
 
     // Initialize the theme
     if (file_exists($themeIndex)) {
