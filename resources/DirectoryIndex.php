@@ -1,22 +1,15 @@
 <?php
 
 /**
- * A simple PHP based directory lister that lists the contents
- * of a directory and all it's sub-directories and allows easy
- * navigation of the files within.
- *
- * This software distributed under the MIT License
- * http://www.opensource.org/licenses/mit-license.php
- *
- * More info available at http://www.directorylister.com
- *
- * @author Chris Kankiewicz (http://www.chriskankiewicz.com)
- * @copyright 2014 Chris Kankiewicz
+ * Simple directory index that lists directory and 
+ * sub-directories and allows you to navigate there 
+ * within, and download button for each files.
+ * 
+ * https://github.com/manta42404/DirectoryIndex
+ * 
+ * Based on http://www.directorylister.com version 2.4.3
  */
-class DirectoryLister {
-
-    // Define application version
-    const VERSION = '2.4.3';
+class DirectoryIndex {
 
     // Reserve some variables
     protected $_themeName     = null;
@@ -29,7 +22,7 @@ class DirectoryLister {
 
 
     /**
-     * DirectoryLister construct function. Runs on object creation.
+     * DirectoryIndex construct function. Runs on object creation.
      */
     public function __construct() {
 
@@ -280,6 +273,44 @@ class DirectoryLister {
         );
 
         return true;
+    }
+
+
+    /**
+     * Send headers to download file
+     *
+     * @param  string $filePath Path to file
+     * @return bool true on success
+     * @access public
+     */
+    public function downloadFile($filePath) {
+        if(!$this->_isForbidden($filePath) && is_file($filePath)) {
+
+            // Get file extension
+            $fileExt = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+
+            if (isset($this->_fileTypes[$fileExt][1])) {
+                $mimeType = $this->_fileTypes[$fileExt][1];
+            } else {
+                $mimeType = $this->_fileTypes['blank'][1];
+            }
+
+            header('Pragma: public');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            header('Cache-Control: public');
+            header('Content-Description: File Transfer');
+            header('Content-Type: '.$mimeType);
+            header('Content-Disposition: attachment; filename="'.basename($filePath).'"');
+            header('Content-Transfer-Encoding: binary');
+            header('Content-Length: '.filesize($filePath));
+            readfile($filePath);
+
+        } else {
+            $this->setSystemMessage('danger', '<b>ERROR:</b> Access denied');
+            return false;
+        }
+
     }
 
 
@@ -553,6 +584,10 @@ class DirectoryLister {
      * @access protected
      */
     protected function _isForbidden($filePath) {
+
+        // Add system files to forbidden files array
+        $this->_config['forbidden'][] = 'index.php';
+        $this->_config['forbidden'][] = 'resources*';
 
         // Add dot files to forbidden files array
         if ($this->_config['hide_dot_files']) {

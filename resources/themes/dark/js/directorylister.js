@@ -21,9 +21,16 @@ $(document).ready(function() {
     $('.file-download-button').click(function(event) {
 
         // Get the file name and path
-        var name = $(this).closest('li').attr('data-name');
+        var name = window.btoa(unescape(encodeURIComponent($(this).closest('li').attr('data-name'))));
 
-        window.location = 'resources/download.php?f=' + window.btoa(unescape(encodeURIComponent( name )));
+        $.ajax({
+            url: '?f=' + name,
+            type: 'GET',
+            success: function() {
+                window.location = '?f=' + name;
+            }
+        });
+
 
         // Prevent default link action
         event.preventDefault();
